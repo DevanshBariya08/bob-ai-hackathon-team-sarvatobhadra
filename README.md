@@ -1,4 +1,4 @@
-# 🚀 [Your Project Title Here]
+# 🚀 Threat Intelligence Correlation Platform
 
 > ⚠️ **Replace everything in `[ ]` brackets with your actual content before submission.**
 
@@ -8,10 +8,10 @@
 
 | Field | Value |
 |---|---|
-| **Team Name** | [Your Team Name] |
-| **Track** | [AI / DevOps / Sustainability / Open] |
-| **Team Lead** | [Name] — [email@ibm.com] |
-| **Members** | [Name 1], [Name 2], [Name 3] |
+| **Team Name** | SarvatoBhadra |
+| **Track** | [AI / Web Application] |
+| **Team Lead** | Devanshkumar Bariya — devansh.bariya05@gmail.com |
+| **Members** | Princekumar Chudasama, Chiragbhai Bambhaniya, Manthanpuri Goswami,Sandip Jadav,Alpit Varvariya |
 
 ---
 
@@ -19,7 +19,7 @@
 
 > In 2–3 sentences: What problem does your project solve? Who experiences this problem?
 
-[Describe the real-world problem your project addresses. Be specific about who the user is and what pain point they face.]
+Defence analysts receive thousands of heterogeneous alerts and intelligence reports every day from SIEM systems, cyber sensors, OSINT feeds, and intelligence sources. Manually analyzing this large volume of information makes it difficult to identify genuine threats, creates false-positive investigation overhead, and delays the production of actionable threat assessments required for timely decision-making.
 
 ---
 
@@ -27,17 +27,17 @@
 
 > In 2–3 sentences: What did you build? How does it solve the problem above?
 
-[Describe your solution clearly. Explain the core mechanism — what makes it work.]
+We are building a Threat Intelligence Correlation Platform that ingests heterogeneous security data, normalizes it into a common structure, extracts entities and threat context using AI/NLP, and automatically correlates related alerts and reports. The platform scores and prioritizes threat clusters and generates evidence-backed BLUF assessments through a REST API and React dashboard, while keeping the human analyst in the decision loop.
 
 ---
 
 ## ✨ Key Features
 
-- **Feature 1:** [Brief description — e.g., "Real-time anomaly detection using watsonx.ai"]
-- **Feature 2:** [Brief description]
-- **Feature 3:** [Brief description]
-- **Feature 4:** [Optional]
-- **Feature 5:** [Optional]
+- **Feature 1:** Multi-source data ingestion for SIEM alerts, OSINT data, intelligence reports, and structured files
+- **Feature 2:** Data normalization and AI/NLP-based extraction of entities, indicators, threats, and contextual information
+- **Feature 3:** Automated correlation of related alerts and intelligence from multiple independent sources
+- **Feature 4:** Threat scoring and prioritization of correlated threat clusters
+- **Feature 5:** AI-generated BLUF (Bottom Line Up Front) assessments for rapid analyst decision-making
 
 ---
 
@@ -45,11 +45,11 @@
 
 | Category | Technologies |
 |---|---|
-| **Languages** | [e.g., Python, TypeScript] |
-| **Frameworks** | [e.g., FastAPI, React] |
-| **IBM Technologies** | [e.g., watsonx.ai, IBM Bob, IBM Cloud] |
-| **Databases** | [e.g., PostgreSQL, Redis] |
-| **Other** | [e.g., Docker, GitHub Actions] |
+| **Languages** | Java , Typescript |
+| **Frameworks** | Spring Boot,React |
+| **IBM Technologies** | [] |
+| **Databases** | PostgreSQL, pgvector |
+| **Other** | Docker, GitHub , Ollama |
 
 ---
 
@@ -108,14 +108,13 @@ cp .env.example .env
 
 > Be honest — judges appreciate transparency over overclaiming.
 
-- [Limitation 1: e.g., "Authentication is mocked — not production-ready"]
-- [Limitation 2: e.g., "Only tested on Chrome"]
-- [Limitation 3: e.g., "Feature X is scaffolded but not fully implemented"]
+- The initial implementation relies on synthetic or simulated security data and focuses on demonstrating the complete correlation workflow; advanced integrations with real classified intelligence systems, large-scale production infrastructure, and fully validated threat intelligence feeds are outside the current prototype scope.
+
 
 ---
 
 ## 🏅 What We're Most Proud Of
 
-[Tell the judges what part of your submission is strongest and worth paying close attention to.]
+Our strongest aspect is the end-to-end threat correlation pipeline that turns large volumes of heterogeneous security information into a small number of correlated and prioritized threat incidents. The platform combines AI/NLP extraction, semantic similarity, correlation, scoring, and evidence-backed BLUF generation while retaining human analyst validation for final decisions.
 
 ---
