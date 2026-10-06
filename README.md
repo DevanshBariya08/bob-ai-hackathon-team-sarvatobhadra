@@ -77,7 +77,7 @@ We are building a Threat Intelligence Correlation Platform that ingests heteroge
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/[your-repo].git
+git clone https://github.com/DevanshBariya08/bob-ai-hackathon-team-sarvatobhadra.git
 cd [your-repo]
 
 # 2. Install dependencies
