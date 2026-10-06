@@ -9,18 +9,22 @@
 # =============================================================================
 
 team:
-  name: ""                             # REQUIRED — e.g., "Orion Squad"
-  track: ""                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
+  name: "SarvatoBhadra"                             # REQUIRED — e.g., "Orion Squad"
+  track: "AI"                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
   lead:
-    name: ""                           # REQUIRED — e.g., "Alice Chen"
-    email: ""                          # REQUIRED — e.g., "alice.chen@ibm.com"
+    name: "Devanshkumar Bariya"                           # REQUIRED — e.g., "Alice Chen"
+    email: "devansh.bariya05@gmail.com"                          # REQUIRED — e.g., "alice.chen@ibm.com"
   members:
-    - name: ""                         # REQUIRED — Team member 1
-      email: ""
-    - name: ""                         # Add more members by copying the two lines above
-      email: ""
-    - name: ""
-      email: ""
+    - name: "Pricekumar Chudasama"                         # REQUIRED — Team member 1
+      email: "chudasamaprince123@gmail.com"
+    - name: "Chiragbhai Bambhaniya"                         # Add more members by copying the two lines above
+      email: "chiragbambhaniya20@gmail.com"
+    - name: "Manthanpuri Goswami"
+      email: "mlgoswami1801@gmail.com"
+    - name: "Sandip Jadav"
+      email: "sbjadav858@gmail.com"
+    - name: "Alpit Varvariya"
+      email: "varavariyaalpitmaladebahi@gmail.com"
 
 submission:
   title: ""                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
