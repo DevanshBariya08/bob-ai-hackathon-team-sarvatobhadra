@@ -1,7 +1,5 @@
 # 🚀 Threat Intelligence Correlation Platform
 
-> ⚠️ **Replace everything in `[ ]` brackets with your actual content before submission.**
-
 ---
 
 ## 👥 Team
@@ -17,15 +15,12 @@
 
 ## 🎯 Problem Statement
 
-> In 2–3 sentences: What problem does your project solve? Who experiences this problem?
-
 Defence analysts receive thousands of heterogeneous alerts and intelligence reports every day from SIEM systems, cyber sensors, OSINT feeds, and intelligence sources. Manually analyzing this large volume of information makes it difficult to identify genuine threats, creates false-positive investigation overhead, and delays the production of actionable threat assessments required for timely decision-making.
 
 ---
 
 ## 💡 Solution
 
-> In 2–3 sentences: What did you build? How does it solve the problem above?
 
 We are building a Threat Intelligence Correlation Platform that ingests heterogeneous security data, normalizes it into a common structure, extracts entities and threat context using AI/NLP, and automatically correlates related alerts and reports. The platform scores and prioritizes threat clusters and generates evidence-backed BLUF assessments through a REST API and React dashboard, while keeping the human analyst in the decision loop.
 

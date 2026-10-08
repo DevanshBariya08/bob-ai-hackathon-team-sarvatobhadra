@@ -1,0 +1,26 @@
+                    DATA SOURCES
+                         │
+        ┌────────────────┼────────────────┐
+        ↓                ↓                ↓
+      SIEM            OSINT          Intelligence
+      JSON             APIs             PDFs
+        │                │                │
+        └────────────────┼────────────────┘
+                         ↓
+                  INGESTION LAYER
+                         ↓
+                 NORMALIZATION
+                         ↓
+              AI / NLP PROCESSING
+                         ↓
+               CORRELATION ENGINE
+                         ↓
+                THREAT SCORING
+                         ↓
+                BLUF GENERATION
+                         ↓
+                  REST API
+                         ↓
+                REACT DASHBOARD
+                         ↓
+                 HUMAN ANALYST

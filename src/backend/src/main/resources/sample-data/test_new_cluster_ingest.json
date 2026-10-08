@@ -1,0 +1,31 @@
+{
+  "source": "SIEM",
+  "timestamp": "2026-10-08T02:15:00",
+  "severity": "CRITICAL",
+  "eventType": "RANSOMWARE_EXFILTRATION_ATTACK",
+  "target": "Financial Core Payment Gateway Server",
+  "threatActor": "Lazarus Group",
+  "description": "Critical security incident: Unauthorized administrative elevation and mass file encryption detected on Financial Core Payment Gateway Server (Host: PAY-GW-01). Command and Control connection initiated to malicious domain evil-command-node.xyz (IP: 203.0.113.199). Payload hash: e99a18c428cb38d5f260853678922e03. Suspected Lazarus Group exfiltration activity targeting financial infrastructure.",
+  "indicators": [
+    {
+      "type": "IP",
+      "value": "203.0.113.199"
+    },
+    {
+      "type": "DOMAIN",
+      "value": "evil-command-node.xyz"
+    },
+    {
+      "type": "FILE_HASH",
+      "value": "e99a18c428cb38d5f260853678922e03"
+    },
+    {
+      "type": "THREAT_ACTOR",
+      "value": "Lazarus Group"
+    },
+    {
+      "type": "TARGET",
+      "value": "Financial Core Payment Gateway Server"
+    }
+  ]
+}

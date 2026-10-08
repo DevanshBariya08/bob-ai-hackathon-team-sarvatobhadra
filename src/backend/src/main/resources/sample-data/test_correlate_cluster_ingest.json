@@ -1,0 +1,15 @@
+{
+  "source": "SENSOR",
+  "timestamp": "2026-10-08T02:20:00",
+  "severity": "HIGH",
+  "eventType": "MALWARE_EXECUTION_LOG",
+  "target": "Financial Core Payment Gateway Server",
+  "threatActor": "Lazarus Group",
+  "description": "Cyber sensor log: Secondary payload execution detected on host PAY-GW-01. Host contacted command server at IP 203.0.113.199 over encrypted tunnel port 443. Activity matches Lazarus Group TTPs.",
+  "indicators": [
+    {
+      "type": "IP",
+      "value": "203.0.113.199"
+    }
+  ]
+}

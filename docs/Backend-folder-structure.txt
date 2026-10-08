@@ -1,0 +1,74 @@
+com.sarvatobhadra.backend
+│
+├── BackendApplication.java
+│
+├── config/
+│   ├── SecurityConfig.java
+│   └── CorsConfig.java
+│
+├── security/
+│   ├── JwtService.java
+│   ├── JwtAuthFilter.java
+│   └── CustomUserDetailsService.java
+│
+├── auth/
+│   ├── AuthController.java
+│   ├── AuthService.java
+│   └── dto/
+│       ├── LoginRequest.java
+│       └── LoginResponse.java
+│
+├── ingestion/
+│   ├── IngestionController.java
+│   ├── IngestionService.java
+│   ├── FileParser.java
+│   └── DataNormalizer.java
+│
+├── alert/
+│   ├── AlertController.java
+│   ├── AlertService.java
+│   ├── Alert.java
+│   ├── AlertRepository.java
+│   └── dto/
+│       └── AlertResponse.java
+│
+├── intelligence/
+│   ├── ReportController.java
+│   ├── ReportService.java
+│   ├── IntelligenceReport.java
+│   └── ReportRepository.java
+│
+├── indicator/
+│   ├── Indicator.java
+│   ├── IndicatorRepository.java
+│   └── IndicatorService.java
+│
+├── correlation/
+│   ├── CorrelationService.java
+│   ├── CorrelationEngine.java
+│   └── CorrelationResult.java
+│
+├── threat/
+│   ├── ThreatCluster.java
+│   ├── ThreatClusterRepository.java
+│   ├── ThreatService.java
+│   └── ThreatScoringService.java
+│
+├── bluf/
+│   ├── BlufReport.java
+│   ├── BlufController.java
+│   ├── BlufService.java
+│   └── LlmClient.java
+│
+├── analyst/
+│   ├── AnalystFeedback.java
+│   ├── AnalystController.java
+│   └── AnalystService.java
+│
+├── common/
+│   ├── ApiResponse.java
+│   ├── GlobalExceptionHandler.java
+│   └── enums/
+│
+└── client/
+    └── NlpClient.java
