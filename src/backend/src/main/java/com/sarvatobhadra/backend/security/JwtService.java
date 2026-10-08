@@ -22,10 +22,10 @@ import java.util.function.Function;
 public class JwtService {
 
     // 256-bit secret key for HMAC-SHA256 signing (configured via application.properties or default)
-    @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
+    @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration:86400000}") // Default 24 hours in milliseconds
+    @Value("${jwt.expiration}") // Default 24 hours in milliseconds
     private long jwtExpirationMs;
 
     /**
@@ -79,7 +79,7 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) { // this method ultimate verifies the signature
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
