@@ -45,7 +45,7 @@ public class IngestionService {
     public ThreatCluster ingestJsonAlert(String jsonPayload, SourceType source) {
         log.info("Processing JSON alert ingestion from source: {}", source);
         Alert normalizedAlert = dataNormalizer.normalizeAlert(jsonPayload, source);
-        normalizedAlert = alertRepository.save(normalizedAlert);
+        normalizedAlert = alertRepository.save(normalizedAlert); // it save the alert
 
         // Extract indicators using NlpClient
         NlpClient.ExtractedEntities entities = nlpClient.extractEntities(normalizedAlert.getDescription());
@@ -78,11 +78,21 @@ public class IngestionService {
         report = reportService.saveReport(report);
         saveExtractedIndicators(entities, null, report.getId());
 
-        String severity = entities != null ? String.valueOf(entities.getPredictedSeverity()) : null;
+        String severity = null;
 
-        if (severity == null || severity.isBlank()) {
+        if (entities != null && entities.getPredictedSeverity() != null) {
+            severity = entities.getPredictedSeverity().toString();
+        }
+
+        // If the NLP model doesn't predict severity, extract it from the text.
+        if (severity == null || severity.isBlank()
+                || severity.equalsIgnoreCase("null")) {
+
             severity = extractSeverityFromText(extractedText);
         }
+
+        // Normalize the severity value.
+        severity = severity.trim().toUpperCase();
 
         Alert reportAlert = Alert.builder()
                 .source(SourceType.INTEL_REPORT)
@@ -103,22 +113,27 @@ public class IngestionService {
         return reportService.saveReport(report);
     }
 
-    private static final java.util.regex.Pattern SEVERITY_PATTERN = java.util.regex.Pattern.compile(
-            "(?i)severity\\s*[:\\-=]?\\s*(critical|high|medium|low|info)");
+    private static final java.util.regex.Pattern SEVERITY_PATTERN =
+            java.util.regex.Pattern.compile(
+                    "(?i)\\bseverity\\s*[:\\-=]?\\s*(critical|high|medium|low|info)\\b"
+            );
 
     private String extractSeverityFromText(String text) {
-        if (text != null) {
-            java.util.regex.Matcher m = SEVERITY_PATTERN.matcher(text);
-            if (m.find()) {
-                return m.group(1).toUpperCase();
-            }
-            String lower = text.toLowerCase();
-            if (lower.contains("critical")) return "CRITICAL";
-            if (lower.contains("high")) return "HIGH";
-            if (lower.contains("medium")) return "MEDIUM";
-            if (lower.contains("low")) return "LOW";
+
+        if (text == null || text.isBlank()) {
+            return Severity.MEDIUM.name();
         }
-        return String.valueOf(Severity.MEDIUM); // safe default
+
+        java.util.regex.Matcher matcher =
+                SEVERITY_PATTERN.matcher(text);
+
+        // First, look for an explicitly declared severity.
+        if (matcher.find()) {
+            return matcher.group(1).toUpperCase();
+        }
+
+        // If no severity is specified, use a safe default.
+        return Severity.MEDIUM.name();
     }
 
     private List<Indicator> saveExtractedIndicators(NlpClient.ExtractedEntities entities, Long alertId, Long reportId) {

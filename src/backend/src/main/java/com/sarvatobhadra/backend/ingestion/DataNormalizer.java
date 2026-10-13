@@ -35,7 +35,7 @@ public class DataNormalizer {
         log.info("Normalizing raw data from source: {}", defaultSource);
 
         SourceType source = defaultSource != null ? defaultSource : SourceType.SIEM;
-        Severity severity = Severity.MEDIUM;
+        Severity severity = Severity.MEDIUM; // Fot the initialize only and it will modify later
         String eventType = "NETWORK_ACTIVITY";
         String description = rawData;
         String target = null;
@@ -69,7 +69,7 @@ public class DataNormalizer {
             log.warn("Payload is non-JSON or custom formatted text. Utilizing AI NLP extraction for normalization.");
         }
 
-        // Run AI NLP Extraction to supplement missing fields
+        // Run AI NLP Extraction to supplement missing fields it fetch all the extracted.
         NlpClient.ExtractedEntities extracted = nlpClient.extractEntities(description);
         if (target == null) target = extracted.getTargetSystem();
         if (threatActor == null) threatActor = extracted.getThreatActor();

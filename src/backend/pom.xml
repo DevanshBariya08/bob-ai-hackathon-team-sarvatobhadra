@@ -87,6 +87,19 @@
 			<version>${tika.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parser-pdf-module</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+
+		<!-- DOCX and other Office document formats -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parser-microsoft-module</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+
 		<!-- Lombok for boilerplate reduction (Set to 1.18.36 for Java 21+ compatibility in IntelliJ) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>

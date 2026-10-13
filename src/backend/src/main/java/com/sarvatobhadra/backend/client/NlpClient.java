@@ -79,7 +79,7 @@ public class NlpClient {
             indicators.add(ExtractedIndicator.builder()
                     .type(IndicatorType.IP)
                     .value(ipMatcher.group())
-                    .confidence(0.95)
+                    .confidence(0.955)
                     .build());
         }
 
