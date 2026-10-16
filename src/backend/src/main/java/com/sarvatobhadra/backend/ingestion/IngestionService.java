@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Service managing multi-source data ingestion pipeline (SIEM JSON, Cyber Sensor logs, OSINT feeds, PDF/DOCX files).
@@ -62,6 +63,7 @@ public class IngestionService {
     public IntelligenceReport ingestFile(MultipartFile file, String title) {
         log.info("Processing file upload ingestion: {}", file.getOriginalFilename());
         String extractedText = fileParser.parseFile(file);
+        log.info("extracted text from file {}",extractedText.length());
 
         NlpClient.ExtractedEntities entities = nlpClient.extractEntities(extractedText);
 
@@ -78,30 +80,36 @@ public class IngestionService {
         report = reportService.saveReport(report);
         saveExtractedIndicators(entities, null, report.getId());
 
-        String severity = null;
-
-        if (entities != null && entities.getPredictedSeverity() != null) {
-            severity = entities.getPredictedSeverity().toString();
-        }
-
-        // If the NLP model doesn't predict severity, extract it from the text.
-        if (severity == null || severity.isBlank()
-                || severity.equalsIgnoreCase("null")) {
-
+        // Severity: NLP value first, then fall back to text extraction
+        String severity = null; // set from NLP if your model returns one
+        if (severity == null || severity.isBlank() || severity.equalsIgnoreCase("null")) {
             severity = extractSeverityFromText(extractedText);
         }
-
-        // Normalize the severity value.
         severity = severity.trim().toUpperCase();
+
+        // Target: NLP value first, then fall back to text extraction
+        String target = entities != null ? entities.getTargetSystem() : null;
+        if (isBlankOrNull(target)) {
+            target = extractFieldFromText(extractedText, TARGET_PATTERN, null);
+        }
+
+        // Threat actor: NLP value first, then fall back to text extraction
+        String threatActor = null;
+        if (isBlankOrNull(threatActor)) {
+            threatActor = extractFieldFromText(extractedText, THREAT_ACTOR_PATTERN, null);
+        }
+
+        // Event type: extracted from text, defaulting to the generic label
+        String eventType = extractFieldFromText(extractedText, EVENT_TYPE_PATTERN, "INTEL_DOCUMENT_ANALYSIS");
 
         Alert reportAlert = Alert.builder()
                 .source(SourceType.INTEL_REPORT)
                 .timestamp(LocalDateTime.now())
                 .severity(Severity.valueOf(severity))
-                .eventType("INTEL_DOCUMENT_ANALYSIS")
+                .eventType(eventType)
                 .description(extractedText)
-                .target(entities != null ? entities.getTargetSystem() : null)
-                .threatActor(entities != null ? entities.getThreatActor() : null)
+                .target(target)
+                .threatActor(threatActor)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -113,10 +121,22 @@ public class IngestionService {
         return reportService.saveReport(report);
     }
 
-    private static final java.util.regex.Pattern SEVERITY_PATTERN =
-            java.util.regex.Pattern.compile(
-                    "(?i)\\bseverity\\s*[:\\-=]?\\s*(critical|high|medium|low|info)\\b"
-            );
+    private static final Pattern SEVERITY_PATTERN = Pattern.compile(
+            "(?im)\\b(?:threat\\s+)?severity\\b\\s*[:=\\-]?\\s*" +
+                    "(CRITICAL|HIGH|MEDIUM|MODERATE|LOW|INFO(?:RMATIONAL)?)\\b"
+    );
+
+    private static final Pattern EVENT_TYPE_PATTERN = Pattern.compile(
+            "(?im)\\b(?:event\\s*type|attack\\s*type|event\\s*category)\\b\\s*[:=\\-]?\\s*(.+)"
+    );
+
+    private static final Pattern TARGET_PATTERN = Pattern.compile(
+            "(?im)\\b(?:target(?:\\s*system)?|targeted\\s*system|victim|affected\\s*system)\\b\\s*[:=\\-]?\\s*(.+)"
+    );
+
+    private static final Pattern THREAT_ACTOR_PATTERN = Pattern.compile(
+            "(?im)\\b(?:threat\\s*actor|attacker|actor\\s*name|adversary)\\b\\s*[:=\\-]?\\s*(.+)"
+    );
 
     private String extractSeverityFromText(String text) {
 
@@ -134,6 +154,35 @@ public class IngestionService {
 
         // If no severity is specified, use a safe default.
         return Severity.MEDIUM.name();
+    }
+
+    /**
+     * Generic regex-based field extractor. Returns the first match's captured value,
+     * cleaned up, or the supplied default if nothing is found.
+     */
+    private String extractFieldFromText(String text, Pattern pattern, String defaultValue) {
+        if (text == null || text.isBlank()) {
+            return defaultValue;
+        }
+
+        java.util.regex.Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            String value = matcher.group(1)
+                    .trim()
+                    .replaceAll("^[\"'`]+|[\"'`]+$", "")   // strip surrounding quotes
+                    .replaceAll("[.,;]+$", "")             // strip trailing punctuation
+                    .trim();
+
+            if (!value.isEmpty()) {
+                // Guard against runaway captures (column-sized DB fields)
+                return value.length() > 255 ? value.substring(0, 255) : value;
+            }
+        }
+        return defaultValue;
+    }
+
+    private boolean isBlankOrNull(String value) {
+        return value == null || value.isBlank() || value.equalsIgnoreCase("null");
     }
 
     private List<Indicator> saveExtractedIndicators(NlpClient.ExtractedEntities entities, Long alertId, Long reportId) {

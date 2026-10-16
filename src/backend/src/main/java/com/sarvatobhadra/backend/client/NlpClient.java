@@ -2,6 +2,7 @@ package com.sarvatobhadra.backend.client;
 
 import com.sarvatobhadra.backend.common.enums.IndicatorType;
 import com.sarvatobhadra.backend.common.enums.Severity;
+import com.sarvatobhadra.backend.embeddings.EmbeddingService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -168,13 +169,63 @@ public class NlpClient {
      * @param textB Second text sample (e.g. Report B: "Suspicious network traffic originating from X")
      * @return Double similarity score between 0.0 and 1.0 (1.0 = identical semantic intent)
      */
-    public double calculateSemanticSimilarity(String textA, String textB) {
-        if (textA == null || textB == null || textA.isBlank() || textB.isBlank()) {
+    private final EmbeddingService embeddingService;
+
+    public NlpClient(EmbeddingService embeddingService){
+        this.embeddingService = embeddingService;
+    }
+
+    public double calculateSemanticSimilarity(
+            Long alertId,
+            Long clusterId,
+            String alertDescription,
+            String clusterDescription,
+            int clusterAlertCount
+    ) {
+
+        if (alertDescription == null
+                || clusterDescription == null
+                || alertDescription.isBlank()
+                || clusterDescription.isBlank()) {
+
             return 0.0;
         }
 
-        Set<String> setA = new HashSet<>(Arrays.asList(textA.toLowerCase().split("\\W+")));
-        Set<String> setB = new HashSet<>(Arrays.asList(textB.toLowerCase().split("\\W+")));
+        float[] alertVector =
+                embeddingService.getOrCreateAlertEmbedding(
+                        alertId,
+                        alertDescription
+                );
+
+        float[] clusterVector =
+                embeddingService.getOrCreateClusterEmbedding(
+                        clusterId,
+                        clusterDescription,
+                        clusterAlertCount
+                );
+
+        double semanticScore =
+                embeddingService.cosineSimilarity(
+                        alertVector,
+                        clusterVector
+                );
+
+        // Cosine similarity can be negative.
+        // Map it into a 0-to-1 range for score combination.
+        double normalizedSemanticScore =
+                (semanticScore + 1.0) / 2.0;
+
+        Set<String> setA = new HashSet<>(
+                Arrays.asList(
+                        alertDescription.toLowerCase().split("\\W+")
+                )
+        );
+
+        Set<String> setB = new HashSet<>(
+                Arrays.asList(
+                        clusterDescription.toLowerCase().split("\\W+")
+                )
+        );
 
         Set<String> intersection = new HashSet<>(setA);
         intersection.retainAll(setB);
@@ -182,17 +233,34 @@ public class NlpClient {
         Set<String> union = new HashSet<>(setA);
         union.addAll(setB);
 
-        if (union.isEmpty()) return 0.0;
+        double jaccardScore = union.isEmpty()
+                ? 0.0
+                : (double) intersection.size() / union.size();
 
-        double jaccardScore = (double) intersection.size() / union.size();
+        double finalScore =
+                (0.80 * normalizedSemanticScore)
+                        + (0.20 * jaccardScore);
 
-        // Boost score if both texts mention the same extracted IP or entity
-        Matcher m1 = IP_PATTERN.matcher(textA);
-        Matcher m2 = IP_PATTERN.matcher(textB);
-        if (m1.find() && m2.find() && m1.group().equals(m2.group())) {
-            jaccardScore += 0.35;
+        Matcher m1 = IP_PATTERN.matcher(alertDescription);
+        Matcher m2 = IP_PATTERN.matcher(clusterDescription);
+
+        Set<String> ipsA = new HashSet<>();
+        Set<String> ipsB = new HashSet<>();
+
+        while (m1.find()) {
+            ipsA.add(m1.group());
         }
 
-        return Math.min(1.0, jaccardScore);
+        while (m2.find()) {
+            ipsB.add(m2.group());
+        }
+
+        ipsA.retainAll(ipsB);
+
+        if (!ipsA.isEmpty()) {
+            finalScore += 0.10;
+        }
+
+        return Math.min(1.0, Math.max(0.0, finalScore));
     }
 }

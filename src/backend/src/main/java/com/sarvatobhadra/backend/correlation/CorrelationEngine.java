@@ -98,8 +98,11 @@ public class CorrelationEngine {
         // 5. Semantic Similarity matching (+10 to +20)
         if (targetAlert.getDescription() != null && existingCluster.getDescription() != null) {
             double similarity = nlpClient.calculateSemanticSimilarity(
+                    targetAlert.getId(),
+                    existingCluster.getId(),
                     targetAlert.getDescription(),
-                    existingCluster.getDescription()
+                    existingCluster.getDescription(),
+                    existingCluster.getAlertCount()
             );
             if (similarity > 0.4) {
                 int simScore = (int) Math.round(similarity * 30);

@@ -4,6 +4,7 @@ import com.sarvatobhadra.backend.alert.Alert;
 import com.sarvatobhadra.backend.alert.AlertRepository;
 import com.sarvatobhadra.backend.common.enums.Priority;
 
+import com.sarvatobhadra.backend.embeddings.EmbeddingService;
 import com.sarvatobhadra.backend.indicator.Indicator;
 import com.sarvatobhadra.backend.indicator.IndicatorRepository;
 import com.sarvatobhadra.backend.intelligence.IntelligenceReport;
@@ -38,6 +39,8 @@ public class CorrelationService {
     private final ThreatScoringService threatScoringService;
     private final ClusterSummaryService clusterSummaryService;
 
+    private final EmbeddingService embeddingService; // not need to create constructor because of annotation required
+
     /**
      * Correlates an ingested alert with existing threat clusters.
      * If correlation score >= 30, links to the highest matching cluster; otherwise creates a new cluster.
@@ -70,17 +73,49 @@ public class CorrelationService {
         }
 
         if (bestMatchCluster != null) {
-            log.info("Alert ID: {} matched with existing Cluster ID: {} with score: {}",
-                    alert.getId(), bestMatchCluster.getId(), maxScore);
+
+            log.info(
+                    "Alert ID: {} matched with existing Cluster ID: {} with score: {}",
+                    alert.getId(),
+                    bestMatchCluster.getId(),
+                    maxScore
+            );
+
+            // 1. Assign the alert to the selected cluster.
             alert.setClusterId(bestMatchCluster.getId());
             alertRepository.save(alert);
 
-            // Update cluster metrics
-            List<Alert> updatedAlerts = alertRepository.findByClusterId(bestMatchCluster.getId());
-            List<IntelligenceReport> reports = reportRepository.findByClusterId(bestMatchCluster.getId());
-            int newThreatScore = threatScoringService.calculateThreatScore(bestMatchCluster, updatedAlerts, reports);
-            Priority newPriority = threatScoringService.mapScoreToPriority(newThreatScore);
-            String updatedDescription = clusterSummaryService.updateDescription(bestMatchCluster, updatedAlerts, reports);
+            // 2. Retrieve all alerts and reports for the cluster.
+            List<Alert> updatedAlerts =
+                    alertRepository.findByClusterId(bestMatchCluster.getId());
+
+            List<IntelligenceReport> reports =
+                    reportRepository.findByClusterId(bestMatchCluster.getId());
+
+            // 3. Recalculate threat metrics.
+            int newThreatScore =
+                    threatScoringService.calculateThreatScore(
+                            bestMatchCluster,
+                            updatedAlerts,
+                            reports
+                    );
+
+            Priority newPriority =
+                    threatScoringService.mapScoreToPriority(newThreatScore);
+
+            // 4. Update the cluster description.
+            String updatedDescription =
+                    clusterSummaryService.updateDescription(
+                            bestMatchCluster,
+                            updatedAlerts,
+                            reports
+                    );
+
+            boolean descriptionChanged =
+                    !java.util.Objects.equals(
+                            bestMatchCluster.getDescription(),
+                            updatedDescription
+                    );
 
             bestMatchCluster.setDescription(updatedDescription);
             bestMatchCluster.setAlertCount(updatedAlerts.size());
@@ -89,7 +124,26 @@ public class CorrelationService {
             bestMatchCluster.setPriority(newPriority);
             bestMatchCluster.setUpdatedAt(LocalDateTime.now());
 
-            return threatClusterRepository.save(bestMatchCluster);
+            // 5. Persist the updated cluster.
+            ThreatCluster savedCluster =
+                    threatClusterRepository.save(bestMatchCluster);
+
+            // 6. Refresh the cluster embedding only when the description changes.
+            if (descriptionChanged) {
+
+                embeddingService.refreshClusterEmbedding(
+                        savedCluster.getId(),
+                        updatedDescription,
+                        updatedAlerts.size()
+                );
+
+                log.info(
+                        "Cluster embedding refreshed for cluster ID: {}",
+                        savedCluster.getId()
+                );
+            }
+
+            return savedCluster;
         } else {
             // Create a new Correlated Threat Cluster
             log.info("No matching cluster found for Alert ID: {}. Creating a new threat cluster.", alert.getId());
