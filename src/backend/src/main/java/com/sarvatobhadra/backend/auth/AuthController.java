@@ -31,7 +31,7 @@ public class AuthController {
 
     /**
      * Registers a new user account (Analyst / Admin role).
-     * POST /api/auth/register
+     * POST /auth/register
      */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<LoginResponse>> register(@Valid @RequestBody RegisterRequest request) {

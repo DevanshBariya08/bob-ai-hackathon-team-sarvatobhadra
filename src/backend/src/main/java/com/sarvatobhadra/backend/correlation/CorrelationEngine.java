@@ -58,7 +58,7 @@ public class CorrelationEngine {
         List<String> existingIps = extractValuesByType(clusterIndicators, IndicatorType.IP);
         for (String ip : newIps) {
             if (existingIps.contains(ip)) {
-                score += 30;
+                score += 20;
                 matchedIndicators.add(ip);
                 matchReasons.add("Same IP address match: " + ip + " (+30)");
                 break;
@@ -69,7 +69,7 @@ public class CorrelationEngine {
         String newActor = targetAlert.getThreatActor();
         if (newActor != null && existingCluster.getPrimaryActor() != null &&
                 newActor.equalsIgnoreCase(existingCluster.getPrimaryActor())) {
-            score += 25;
+            score += 20;
             matchedIndicators.add(newActor);
             matchReasons.add("Same Threat Actor match: " + newActor + " (+25)");
         }
@@ -79,7 +79,7 @@ public class CorrelationEngine {
         List<String> existingDomains = extractValuesByType(clusterIndicators, IndicatorType.DOMAIN);
         for (String domain : newDomains) {
             if (existingDomains.contains(domain)) {
-                score += 20;
+                score += 15;
                 matchedIndicators.add(domain);
                 matchReasons.add("Same Domain match: " + domain + " (+20)");
                 break;
@@ -102,7 +102,7 @@ public class CorrelationEngine {
                     existingCluster.getDescription()
             );
             if (similarity > 0.4) {
-                int simScore = (int) Math.round(similarity * 20);
+                int simScore = (int) Math.round(similarity * 30);
                 score += simScore;
                 matchReasons.add(String.format("AI Semantic Similarity score %.2f (+%d)", similarity, simScore));
             }

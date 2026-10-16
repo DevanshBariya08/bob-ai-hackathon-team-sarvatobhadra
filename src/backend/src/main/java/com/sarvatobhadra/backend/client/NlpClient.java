@@ -79,7 +79,7 @@ public class NlpClient {
             indicators.add(ExtractedIndicator.builder()
                     .type(IndicatorType.IP)
                     .value(ipMatcher.group())
-                    .confidence(0.955)
+                    .confidence(0.90)
                     .build());
         }
 
@@ -91,7 +91,7 @@ public class NlpClient {
                 indicators.add(ExtractedIndicator.builder()
                         .type(IndicatorType.DOMAIN)
                         .value(domain)
-                        .confidence(0.90)
+                        .confidence(0.85)
                         .build());
             }
         }
@@ -102,7 +102,7 @@ public class NlpClient {
             indicators.add(ExtractedIndicator.builder()
                     .type(IndicatorType.FILE_HASH)
                     .value(hashMatcher.group())
-                    .confidence(0.99)
+                    .confidence(0.97)
                     .build());
         }
 

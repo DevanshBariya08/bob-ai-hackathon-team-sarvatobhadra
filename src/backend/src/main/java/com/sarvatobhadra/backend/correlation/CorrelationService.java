@@ -8,6 +8,7 @@ import com.sarvatobhadra.backend.indicator.Indicator;
 import com.sarvatobhadra.backend.indicator.IndicatorRepository;
 import com.sarvatobhadra.backend.intelligence.IntelligenceReport;
 import com.sarvatobhadra.backend.intelligence.ReportRepository;
+import com.sarvatobhadra.backend.threat.ClusterSummaryService;
 import com.sarvatobhadra.backend.threat.ThreatCluster;
 import com.sarvatobhadra.backend.threat.ThreatClusterRepository;
 import com.sarvatobhadra.backend.threat.ThreatScoringService;
@@ -35,6 +36,7 @@ public class CorrelationService {
     private final IndicatorRepository indicatorRepository;
     private final ReportRepository reportRepository;
     private final ThreatScoringService threatScoringService;
+    private final ClusterSummaryService clusterSummaryService;
 
     /**
      * Correlates an ingested alert with existing threat clusters.
@@ -47,7 +49,7 @@ public class CorrelationService {
         List<ThreatCluster> openClusters = threatClusterRepository.findAll();
         ThreatCluster bestMatchCluster = null;
         double maxScore = 0.0;
-        List<String> bestReasons = new ArrayList<>();
+        List<String> bestReasons = new ArrayList<>();  // For the future purpose
 
         for (ThreatCluster candidateCluster : openClusters) {
             List<Alert> clusterAlerts = alertRepository.findByClusterId(candidateCluster.getId());
@@ -78,7 +80,9 @@ public class CorrelationService {
             List<IntelligenceReport> reports = reportRepository.findByClusterId(bestMatchCluster.getId());
             int newThreatScore = threatScoringService.calculateThreatScore(bestMatchCluster, updatedAlerts, reports);
             Priority newPriority = threatScoringService.mapScoreToPriority(newThreatScore);
+            String updatedDescription = clusterSummaryService.updateDescription(bestMatchCluster, updatedAlerts, reports);
 
+            bestMatchCluster.setDescription(updatedDescription);
             bestMatchCluster.setAlertCount(updatedAlerts.size());
             bestMatchCluster.setCorrelationScore(maxScore);
             bestMatchCluster.setThreatScore(newThreatScore);

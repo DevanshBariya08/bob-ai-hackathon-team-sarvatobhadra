@@ -47,4 +47,5 @@ public class IntelligenceReport {
     @Column(name = "uploaded_at")
     @Builder.Default
     private LocalDateTime uploadedAt = LocalDateTime.now();
+
 }
